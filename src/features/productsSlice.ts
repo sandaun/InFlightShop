@@ -1,4 +1,4 @@
-import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import {createSlice, createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import {fakeProductsApi} from '../api/fakeProductsApi';
 import {ProductsState} from '../types/productTypes';
 
@@ -20,11 +20,23 @@ const productsSlice = createSlice({
   name: 'products',
   initialState,
   reducers: {
-    incrementQuantity(state, action) {
+    incrementQuantity(state, action: PayloadAction<string>) {
       const product = state.items.find(p => p.id === action.payload);
       if (product) {
         product.quantity = (product.quantity || 0) + 1;
       }
+    },
+    decrementQuantity(state, action: PayloadAction<string>) {
+      const product = state.items.find(p => p.id === action.payload);
+      if (product && product.quantity > 1) {
+        product.quantity -= 1;
+      } else if (product) {
+        // Remove the product if quantity goes to 0
+        state.items = state.items.filter(p => p.id !== action.payload);
+      }
+    },
+    removeProduct(state, action: PayloadAction<string>) {
+      state.items = state.items.filter(p => p.id !== action.payload);
     },
   },
   extraReducers: builder => {
@@ -42,5 +54,6 @@ const productsSlice = createSlice({
   },
 });
 
-export const {incrementQuantity} = productsSlice.actions;
+export const {incrementQuantity, decrementQuantity, removeProduct} =
+  productsSlice.actions;
 export default productsSlice.reducer;

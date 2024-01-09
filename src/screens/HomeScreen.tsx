@@ -11,12 +11,18 @@ import {fetchProducts} from '../features/productsSlice';
 import {useAppDispatch, useAppSelector} from '../app/hooks';
 import {selectProducts} from '../features/selectors';
 import RNPickerSelect from 'react-native-picker-select';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../navigation/Navigation';
 
 const HomeScreen = () => {
   const dispatch = useAppDispatch();
   const products = useAppSelector(selectProducts);
   const [selectedPayOption, setSelectedPayOption] = useState(null);
   const [selectedCurrencyOption, setSelectedCurrencyOption] = useState(null);
+
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -27,6 +33,11 @@ const HomeScreen = () => {
     0,
   );
 
+  const handleNavigateToCheckout = () => {
+    console.log('handleNavigateToCheckout');
+    navigation.navigate('Checkout'); // Ensure 'Checkout' matches the name given in your navigation stack
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
@@ -35,7 +46,9 @@ const HomeScreen = () => {
       </ScrollView>
       <View style={styles.footer}>
         <View style={styles.buttonsWrapper}>
-          <TouchableOpacity style={styles.payButton}>
+          <TouchableOpacity
+            style={styles.payButton}
+            onPress={handleNavigateToCheckout}>
             <Text style={styles.payButtonText}>
               Pay ${totalPrice.toFixed(2)}
             </Text>
