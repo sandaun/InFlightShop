@@ -7,17 +7,17 @@ import {
   TouchableOpacity,
   Modal,
   Button,
+  Platform,
 } from 'react-native';
-import {useAppDispatch, useAppSelector} from '../app/hooks'; // Ensure this is the correct path to your hook
+import {useAppDispatch, useAppSelector} from '../app/hooks';
 import {
   incrementQuantity,
   decrementQuantity,
   removeProduct,
 } from '../features/productsSlice';
-import RNPickerSelect from 'react-native-picker-select';
-import {selectProducts} from '../features/selectors'; // Ensure this is the correct path to your selector
+import {selectProducts} from '../features/selectors';
 import {Product} from '../types/productTypes';
-import {currencyOptions, paymentOptions} from '../utils/constants';
+import {Picker} from '@react-native-picker/picker';
 
 const CheckoutScreen = () => {
   const dispatch = useAppDispatch();
@@ -25,10 +25,17 @@ const CheckoutScreen = () => {
     item => item.quantity > 0,
   );
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isSeatPickerModalVisible, setSeatPickerModalVisible] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
     null,
   );
-  const [selectedPayOption, setSelectedPayOption] = useState(null);
+  const [selectedLetter, setSelectedLetter] = useState('A');
+  const [selectedNumber, setSelectedNumber] = useState('1');
+
+  const letters = Array.from({length: 11}, (_, i) =>
+    String.fromCharCode(65 + i),
+  );
+  const numbers = Array.from({length: 50}, (_, i) => (i + 1).toString());
 
   const openModal = (id: string) => {
     setSelectedProductId(id);
@@ -85,7 +92,6 @@ const CheckoutScreen = () => {
         renderItem={renderItem}
         keyExtractor={(item: Product) => item.id}
       />
-
       <Modal
         animationType="slide"
         transparent={true}
@@ -93,6 +99,7 @@ const CheckoutScreen = () => {
         onRequestClose={closeModal}>
         <View style={styles.modalContainerStyle}>
           <View style={styles.modalView}>
+            <Text style={styles.modalTitle}>Edit product quantity</Text>
             <View style={styles.quantityButtonsContainer}>
               <TouchableOpacity
                 style={styles.quantityButton}
@@ -106,7 +113,7 @@ const CheckoutScreen = () => {
                 <Text style={styles.quantityButtonText}>+</Text>
               </TouchableOpacity>
             </View>
-            <Button title="Close" onPress={closeModal} />
+            <Button title="Confirm" onPress={closeModal} />
           </View>
         </View>
       </Modal>
@@ -114,18 +121,47 @@ const CheckoutScreen = () => {
         <View style={styles.footerFirstRow}>
           <View>
             <Text style={styles.footerItemTitle}>Asiento</Text>
-            <RNPickerSelect
-              onValueChange={value => setSelectedPayOption(value)}
-              items={currencyOptions}
-              style={pickerSelectStyles}
-              value={selectedPayOption}
-              placeholder={{label: 'Select an option', value: null}}
-            />
+            <TouchableOpacity
+              style={styles.seatButton}
+              onPress={() => setSeatPickerModalVisible(true)}>
+              <Text style={styles.seatText}>{selectedLetter}</Text>
+              <Text style={styles.seatText}>{selectedNumber}</Text>
+            </TouchableOpacity>
           </View>
-          <View
-            style={{
-              alignItems: 'flex-end',
-            }}>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={isSeatPickerModalVisible}
+            onRequestClose={() => setSeatPickerModalVisible(false)}>
+            <View style={styles.modalContainerStyle}>
+              <View style={styles.modalView}>
+                <Text style={styles.modalTitle}>Choose your seat</Text>
+                <View style={styles.pickerWrapper}>
+                  <Picker
+                    selectedValue={selectedLetter}
+                    onValueChange={itemValue => setSelectedLetter(itemValue)}
+                    style={styles.letterPicker}>
+                    {letters.map(letter => (
+                      <Picker.Item key={letter} label={letter} value={letter} />
+                    ))}
+                  </Picker>
+                  <Picker
+                    selectedValue={selectedNumber}
+                    onValueChange={itemValue => setSelectedNumber(itemValue)}
+                    style={styles.numberPicker}>
+                    {numbers.map(number => (
+                      <Picker.Item key={number} label={number} value={number} />
+                    ))}
+                  </Picker>
+                </View>
+                <Button
+                  title="Confirm"
+                  onPress={() => setSeatPickerModalVisible(false)}
+                />
+              </View>
+            </View>
+          </Modal>
+          <View style={styles.footerItemTitleRight}>
             <Text style={styles.footerItemTitle}>Total</Text>
             <Text style={styles.footerItemBody}>{totalPrice.toFixed(2)}</Text>
           </View>
@@ -160,7 +196,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 20,
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalView: {
     backgroundColor: 'white',
@@ -175,6 +212,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     width: '100%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    textAlign: 'center',
+    marginBottom: 20,
   },
   quantityButtonsContainer: {
     flexDirection: 'row',
@@ -221,22 +263,39 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     color: 'gray',
   },
+  footerItemTitleRight: {
+    alignItems: 'flex-end',
+  },
   footerItemBody: {
-    fontSize: 46,
+    fontSize: 56,
     fontWeight: 'bold',
   },
-});
-
-const pickerSelectStyles = StyleSheet.create({
-  inputIOS: {
-    // styles for iOS picker
-    color: 'red',
-    fontSize: 18,
-    textTransform: 'uppercase',
-    textAlign: 'center',
+  seatButton: {
+    width: 110,
+    flexDirection: 'row',
+    backgroundColor: 'lightgray',
+    borderRadius: 10,
+    marginTop: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  inputAndroid: {
-    // styles for Android picker
+  seatText: {
+    color: 'black',
+    fontSize: 35,
+    fontWeight: 'bold',
+  },
+  pickerWrapper: {
+    flexDirection: 'row',
+  },
+  letterPicker: {
+    width: Platform.OS === 'android' ? 100 : undefined,
+    flex: Platform.OS === 'ios' ? 1 : undefined,
+  },
+  numberPicker: {
+    width: Platform.OS === 'android' ? 100 : undefined,
+    flex: Platform.OS === 'ios' ? 1 : undefined,
   },
 });
 

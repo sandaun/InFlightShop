@@ -42,7 +42,7 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        <Text>Products</Text>
+        {/* <Text>Products</Text> */}
         <ProductList products={products} />
       </ScrollView>
       <View style={styles.footer}>
