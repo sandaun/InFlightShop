@@ -14,6 +14,7 @@ import RNPickerSelect from 'react-native-picker-select';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/Navigation';
+import {currencyOptions} from '../utils/constants';
 
 const HomeScreen = () => {
   const dispatch = useAppDispatch();
@@ -70,11 +71,7 @@ const HomeScreen = () => {
         <View style={styles.currencyButton}>
           <RNPickerSelect
             onValueChange={value => setSelectedCurrencyOption(value)}
-            items={[
-              {label: 'EUR', value: 'eur'},
-              {label: 'USD', value: 'usd'},
-              {label: 'GBP', value: 'gbp'},
-            ]}
+            items={currencyOptions}
             style={pickerSelectStyles}
             value={selectedCurrencyOption}
             placeholder={{label: 'Doiff', value: null}}
