@@ -1,6 +1,7 @@
 import {createSlice, createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import {fakeProductsApi} from '../api/fakeProductsApi';
 import {ProductsState} from '../types/productTypes';
+import {Currency} from '../types/utilsTypes';
 
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
@@ -14,6 +15,7 @@ const initialState: ProductsState = {
   items: [],
   loading: false,
   error: null,
+  selectedCurrency: Currency.EUR,
 };
 
 const productsSlice = createSlice({
@@ -28,15 +30,19 @@ const productsSlice = createSlice({
     },
     decrementQuantity(state, action: PayloadAction<string>) {
       const product = state.items.find(p => p.id === action.payload);
-      if (product && product.quantity > 1) {
-        product.quantity -= 1;
-      } else if (product) {
-        // Remove the product if quantity goes to 0
-        state.items = state.items.filter(p => p.id !== action.payload);
+      if (product) {
+        product.quantity =
+          product.quantity && product.quantity > 1 ? product.quantity - 1 : 0;
       }
     },
     removeProduct(state, action: PayloadAction<string>) {
-      state.items = state.items.filter(p => p.id !== action.payload);
+      const product = state.items.find(p => p.id === action.payload);
+      if (product) {
+        product.quantity = 0;
+      }
+    },
+    setSelectedCurrency(state, action: PayloadAction<string>) {
+      state.selectedCurrency = action.payload;
     },
   },
   extraReducers: builder => {
@@ -54,6 +60,10 @@ const productsSlice = createSlice({
   },
 });
 
-export const {incrementQuantity, decrementQuantity, removeProduct} =
-  productsSlice.actions;
+export const {
+  incrementQuantity,
+  decrementQuantity,
+  removeProduct,
+  setSelectedCurrency,
+} = productsSlice.actions;
 export default productsSlice.reducer;

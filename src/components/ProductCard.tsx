@@ -2,17 +2,22 @@ import React from 'react';
 import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
 import {useAppDispatch} from '../app/hooks';
 import {incrementQuantity} from '../features/productsSlice';
+import {Product} from '../types/productTypes';
 
-const ProductCard = ({product}) => {
+interface ProductCardProps {
+  product: Product;
+}
+
+const ProductCard: React.FC<ProductCardProps> = ({product}) => {
   const dispatch = useAppDispatch();
   return (
     <View style={styles.card}>
       <Image source={{uri: product.imageUrl}} style={styles.backgroundImage} />
-      {product.quantity && (
+      {product.quantity != null && product.quantity !== 0 ? (
         <View style={styles.quantityBadge}>
           <Text style={styles.textQuantity}>{product.quantity}</Text>
         </View>
-      )}
+      ) : null}
       <View style={styles.textContainer}>
         <Text style={styles.title}>{product.title}</Text>
         <Text style={styles.subtitle}>{product.subtitle}</Text>

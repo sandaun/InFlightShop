@@ -22,8 +22,9 @@ import {Picker} from '@react-native-picker/picker';
 const CheckoutScreen = () => {
   const dispatch = useAppDispatch();
   const products = useAppSelector(selectProducts).filter(
-    item => item.quantity > 0,
+    item => item.quantity && item.quantity > 0,
   );
+
   const [isModalVisible, setModalVisible] = useState(false);
   const [isSeatPickerModalVisible, setSeatPickerModalVisible] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
@@ -76,9 +77,11 @@ const CheckoutScreen = () => {
     <View style={styles.itemContainer}>
       <Text style={styles.title}>{item.title}</Text>
       <Text style={styles.price}>{`${item.price} €`}</Text>
-      <TouchableOpacity onPress={() => openModal(item.id)}>
-        <Text>{item.quantity}</Text>
-      </TouchableOpacity>
+      {item.quantity !== null && (
+        <TouchableOpacity onPress={() => openModal(item.id)}>
+          <Text>{item.quantity}</Text>
+        </TouchableOpacity>
+      )}
       {/* <TouchableOpacity onPress={() => handleRemoveProduct(item.id)}>
         <Text>Remove</Text>
       </TouchableOpacity> */}

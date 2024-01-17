@@ -11,6 +11,7 @@ export interface ProductsState {
   items: Product[];
   loading: boolean;
   error: string | null;
+  selectedCurrency: string;
 }
 
 export interface ApiResponse {

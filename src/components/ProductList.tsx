@@ -1,11 +1,16 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import ProductCard from './ProductCard';
+import {Product} from '../types/productTypes';
 
-const ProductList = ({products}) => {
+interface ProdcutListProps {
+  products: Product[];
+}
+
+const ProductList: React.FC<ProdcutListProps> = ({products}) => {
   return (
     <View style={styles.container}>
-      {products.map((product, index) => (
+      {products.map(product => (
         <ProductCard key={product.id} product={product} />
       ))}
     </View>
